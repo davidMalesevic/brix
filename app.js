@@ -181,7 +181,12 @@ function collideWithBricks(playBall, bricks) {
         if (brick) {
             let index = bricks.indexOf(brick)
             bricks.splice(index, 1)
-            playBall.velY = -playBall.velY;
+            if(pos === "bottom" || pos === "top"){
+                playBall.velY = -playBall.velY;
+            }
+            else{
+                playBall.velX = -playBall.velX;
+            }
         }
     }
 }
@@ -215,8 +220,8 @@ window.onkeyup = function (evt) {
     }
 }
 
-playBall.velX = 5;
-playBall.velY = 5;
+playBall.velX = 8;
+playBall.velY = 8;
 
 //Game Loop
 
