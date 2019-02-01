@@ -10,9 +10,11 @@ let center = width / 2;
 ctx.translate(width / 2, height / 2);
 ctx.scale(1, -1);
 
-let beep = new Audio('sounds/beep.wav');
-let boop = new Audio('sounds/boop.wav');
-let bgMusic = new Audio('sounds/bg-music/dubstep.mp3');
+beep = new Audio('sounds/beep.wav');
+boop = new Audio('sounds/boop.wav');
+bgMusic = new Audio('sounds/bg-music/dubstep.mp3');
+bgMusic.loop = true;
+
 
 window.onload = function(){
     bgMusic.play();
@@ -135,6 +137,8 @@ class Paddle {
     }
 }
 
+//check if ball collides with paddle. paddle, has top, left and right boundries which have to be considered for collision
+
 function collideWithPaddle(playBall, paddle) {
     if (playBall.bottomBoundary <= paddle.topBoundary && playBall.leftBoundary >= paddle.leftBoundary && playBall.rightBoundary <= paddle.rightBoundary) {
         playBall.velX = playBall.velX;
@@ -155,10 +159,35 @@ function ballPositionRelativeToBrick(playBall, brick) {
     else if (playBall.x < brick.leftBoundary && playBall.y < brick.topBoundary && playBall.y > brick.bottomBoundary) return "left";
 }
 
+function distanceToCorner(playBall, brick){
+    return Math.sqrt(Math.pow(playBall.x - brick.x, 2) + Math.pow(playBall.y - brick.y, 2))
+};
+
+    
+
+
 function collideWithBrick(playBall, brick, pos) {
+    const topRightCorner = { x: brick.x + brick.width / 2, y: brick.y + brick.height / 2 };
+    const topLeftCorner = { x: brick.x - brick.width / 2, y: brick.y + brick.height / 2 };
+    const bottomRightCorner = { x: brick.x + brick.width / 2, y: brick.y - brick.height / 2 };
+    const bottomLeftCorner = { x: brick.x - brick.width / 2, y: brick.y - brick.height / 2 };
     switch (pos) {
         case "top": {
             if (playBall.bottomBoundary <= brick.topBoundary) {
+                return brick;
+            }
+            break;
+        }
+        case "top-right": {
+            const dist = distanceToCorner(playBall, topRightCorner)
+            if (dist <playBall.radius) {
+                return brick;
+            }
+            break;
+        }
+        case "top-left": {
+            const dist = distanceToCorner(playBall, topLeftCorner)
+            if (dist <playBall.radius) {
                 return brick;
             }
             break;
@@ -171,6 +200,20 @@ function collideWithBrick(playBall, brick, pos) {
         }
         case "bottom": {
             if (playBall.topBoundary >= brick.bottomBoundary) {
+                return brick;
+            }
+            break;
+        }
+        case "bottom-right": {
+            const dist = distanceToCorner(playBall, bottomRightCorner)
+            if (dist <playBall.radius) {
+                return brick;
+            }
+            break;
+        }
+        case "bottom-left": {
+            const dist = distanceToCorner(playBall, bottomLeftCorner)
+            if (dist <playBall.radius) {
                 return brick;
             }
             break;
