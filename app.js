@@ -1,5 +1,5 @@
 //SEnviromental letiables
-let canvaContainer = document.querySelector('.canvas-container');
+//let canvaContainer = document.querySelector('.canvas-container');
 let canvas = document.querySelector("canvas");
 let ctx = canvas.getContext("2d");
 
@@ -138,8 +138,12 @@ function collide(playBall, paddle) {
 
 function ballPositionRelativeToBrick(playBall, brick) {
     if (playBall.x > brick.leftBoundary && playBall.x < brick.rightBoundary && playBall.y > brick.topBoundary) return "top";
+    else if (playBall.x > brick.rightBoundary && playBall.y > brick.topBoundary) return "top-right";
+    else if (playBall.x < brick.leftBoundary && playBall.y > brick.topBoundary) return "top-left";
     else if (playBall.x > brick.rightBoundary && playBall.y < brick.topBoundary && playBall.y > brick.bottomBoundary) return "right";
     else if (playBall.x > brick.leftBoundary && playBall.x < brick.rightBoundary && playBall.y < brick.bottomBoundary) return "bottom";
+    else if (playBall.x > brick.rightBoundary && playBall.y < brick.bottomBoundary) return "bottom-right";
+    else if (playBall.x < brick.leftBoundary && playBall.y < brick.bottomBoundary) return "bottom-left";
     else if (playBall.x < brick.leftBoundary && playBall.y < brick.topBoundary && playBall.y > brick.bottomBoundary) return "left";
 }
 
@@ -181,10 +185,10 @@ function collideWithBricks(playBall, bricks) {
         if (brick) {
             let index = bricks.indexOf(brick)
             bricks.splice(index, 1)
-            if(pos === "bottom" || pos === "top"){
+            if (pos === "bottom" || pos === "top") {
                 playBall.velY = -playBall.velY;
             }
-            else{
+            else {
                 playBall.velX = -playBall.velX;
             }
         }
