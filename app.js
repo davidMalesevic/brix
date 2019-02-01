@@ -10,6 +10,13 @@ let center = width / 2;
 ctx.translate(width / 2, height / 2);
 ctx.scale(1, -1);
 
+let beep = new Audio('sounds/beep.wav');
+let boop = new Audio('sounds/boop.wav');
+let bgMusic = new Audio('sounds/bg-music/dubstep.mp3');
+
+window.onload = function(){
+    bgMusic.play();
+};
 
 //randomizer with min & max value
 function random(min, max) {
@@ -128,11 +135,12 @@ class Paddle {
     }
 }
 
-function collide(playBall, paddle) {
+function collideWithPaddle(playBall, paddle) {
     if (playBall.bottomBoundary <= paddle.topBoundary && playBall.leftBoundary >= paddle.leftBoundary && playBall.rightBoundary <= paddle.rightBoundary) {
         playBall.velX = playBall.velX;
         playBall.velY = -playBall.velY;
         playBall.y = paddle.topBoundary + playBall.radius;
+        boop.play();
     }
 }
 
@@ -187,9 +195,11 @@ function collideWithBricks(playBall, bricks) {
             bricks.splice(index, 1)
             if (pos === "bottom" || pos === "top") {
                 playBall.velY = -playBall.velY;
+                beep.play();
             }
             else {
                 playBall.velX = -playBall.velX;
+                beep.play();
             }
         }
     }
@@ -233,7 +243,7 @@ function loop() {
     ctx.clearRect(-width / 2, -height / 2, canvas.width, canvas.height);
     playBall.update();
     paddle.update();
-    collide(playBall, paddle);
+    collideWithPaddle(playBall, paddle);
     collideWithBricks(playBall, bricks);
     paddle.draw();
     playBall.draw();
