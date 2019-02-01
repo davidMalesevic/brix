@@ -29,6 +29,7 @@ function random(min, max) {
 class Brick {
     constructor(x, y, width, height, color) {
         this.color = color;
+        this.borderColor = 'black';
         this.x = x;
         this.y = y;
         this.width = width;
@@ -40,8 +41,11 @@ class Brick {
     }
     draw() {
         ctx.fillStyle = this.color;
+        ctx.strokeStyle = this.bordercolor;
+        ctx.lineWidth = 10;
         let drawX = this.x - this.width / 2;
         let drawY = this.y - this.height / 2;
+        ctx.strokeRect(drawX, drawY, width, height);
         ctx.fillRect(drawX, drawY, this.width, this.height);
     }
 }
@@ -139,87 +143,85 @@ class Paddle {
 
 //check if ball collides with paddle. paddle, has top, left and right boundries which have to be considered for collision
 
-function collideWithPaddle(playBall, paddle) {
-    if (playBall.bottomBoundary <= paddle.topBoundary && playBall.leftBoundary >= paddle.leftBoundary && playBall.rightBoundary <= paddle.rightBoundary) {
-        playBall.velX = playBall.velX;
-        playBall.velY = -playBall.velY;
-        playBall.y = paddle.topBoundary + playBall.radius;
+function collideWithPaddle(ball, paddle) {
+    if (ball.bottomBoundary <= paddle.topBoundary && ball.leftBoundary >= paddle.leftBoundary && ball.rightBoundary <= paddle.rightBoundary) {
+        ball.velX = ball.velX;
+        ball.velY = -ball.velY;
+        ball.y = paddle.topBoundary + ball.radius;
         boop.play();
     }
+};
+
+function ballPositionRelativeToBrick(ball, brick) {
+    if (ball.x > brick.leftBoundary && ball.x < brick.rightBoundary && ball.y > brick.topBoundary) return "top";
+    else if (ball.x > brick.rightBoundary && ball.y > brick.topBoundary) return "top-right";
+    else if (ball.x < brick.leftBoundary && ball.y > brick.topBoundary) return "top-left";
+    else if (ball.x > brick.rightBoundary && ball.y < brick.topBoundary && ball.y > brick.bottomBoundary) return "right";
+    else if (ball.x > brick.leftBoundary && ball.x < brick.rightBoundary && ball.y < brick.bottomBoundary) return "bottom";
+    else if (ball.x > brick.rightBoundary && ball.y < brick.bottomBoundary) return "bottom-right";
+    else if (ball.x < brick.leftBoundary && ball.y < brick.bottomBoundary) return "bottom-left";
+    else if (ball.x < brick.leftBoundary && ball.y < brick.topBoundary && ball.y > brick.bottomBoundary) return "left";
 }
 
-function ballPositionRelativeToBrick(playBall, brick) {
-    if (playBall.x > brick.leftBoundary && playBall.x < brick.rightBoundary && playBall.y > brick.topBoundary) return "top";
-    else if (playBall.x > brick.rightBoundary && playBall.y > brick.topBoundary) return "top-right";
-    else if (playBall.x < brick.leftBoundary && playBall.y > brick.topBoundary) return "top-left";
-    else if (playBall.x > brick.rightBoundary && playBall.y < brick.topBoundary && playBall.y > brick.bottomBoundary) return "right";
-    else if (playBall.x > brick.leftBoundary && playBall.x < brick.rightBoundary && playBall.y < brick.bottomBoundary) return "bottom";
-    else if (playBall.x > brick.rightBoundary && playBall.y < brick.bottomBoundary) return "bottom-right";
-    else if (playBall.x < brick.leftBoundary && playBall.y < brick.bottomBoundary) return "bottom-left";
-    else if (playBall.x < brick.leftBoundary && playBall.y < brick.topBoundary && playBall.y > brick.bottomBoundary) return "left";
-}
-
-function distanceToCorner(playBall, brick){
-    return Math.sqrt(Math.pow(playBall.x - brick.x, 2) + Math.pow(playBall.y - brick.y, 2))
+function distanceToCorner(ball, brick){
+    return Math.sqrt(Math.pow(ball.x - brick.x, 2) + Math.pow(ball.y - brick.y, 2))
 };
 
     
-
-
-function collideWithBrick(playBall, brick, pos) {
+function collideWithBrick(ball, brick, pos) {
     const topRightCorner = { x: brick.x + brick.width / 2, y: brick.y + brick.height / 2 };
     const topLeftCorner = { x: brick.x - brick.width / 2, y: brick.y + brick.height / 2 };
     const bottomRightCorner = { x: brick.x + brick.width / 2, y: brick.y - brick.height / 2 };
     const bottomLeftCorner = { x: brick.x - brick.width / 2, y: brick.y - brick.height / 2 };
     switch (pos) {
         case "top": {
-            if (playBall.bottomBoundary <= brick.topBoundary) {
+            if (ball.bottomBoundary <= brick.topBoundary) {
                 return brick;
             }
             break;
         }
         case "top-right": {
-            const dist = distanceToCorner(playBall, topRightCorner)
-            if (dist <playBall.radius) {
+            const dist = distanceToCorner(ball, topRightCorner)
+            if (dist <ball.radius) {
                 return brick;
             }
             break;
         }
         case "top-left": {
-            const dist = distanceToCorner(playBall, topLeftCorner)
-            if (dist <playBall.radius) {
+            const dist = distanceToCorner(ball, topLeftCorner)
+            if (dist <ball.radius) {
                 return brick;
             }
             break;
         }
         case "right": {
-            if (playBall.leftBoundary <= brick.rightBoundary) {
+            if (ball.leftBoundary <= brick.rightBoundary) {
                 return brick;
             }
             break;
         }
         case "bottom": {
-            if (playBall.topBoundary >= brick.bottomBoundary) {
+            if (ball.topBoundary >= brick.bottomBoundary) {
                 return brick;
             }
             break;
         }
         case "bottom-right": {
-            const dist = distanceToCorner(playBall, bottomRightCorner)
-            if (dist <playBall.radius) {
+            const dist = distanceToCorner(ball, bottomRightCorner)
+            if (dist <ball.radius) {
                 return brick;
             }
             break;
         }
         case "bottom-left": {
-            const dist = distanceToCorner(playBall, bottomLeftCorner)
-            if (dist <playBall.radius) {
+            const dist = distanceToCorner(ball, bottomLeftCorner)
+            if (dist <ball.radius) {
                 return brick;
             }
             break;
         }
         case "left": {
-            if (playBall.rightBoundary >= brick.leftBoundary) {
+            if (ball.rightBoundary >= brick.leftBoundary) {
                 return brick;
             }
             break;
@@ -229,19 +231,19 @@ function collideWithBrick(playBall, brick, pos) {
 }
 
 
-function collideWithBricks(playBall, bricks) {
+function collideWithBricks(ball, bricks) {
     for (b in bricks) {
-        let pos = ballPositionRelativeToBrick(playBall, bricks[b]);
-        let brick = collideWithBrick(playBall, bricks[b], pos);
+        let pos = ballPositionRelativeToBrick(ball, bricks[b]);
+        let brick = collideWithBrick(ball, bricks[b], pos);
         if (brick) {
             let index = bricks.indexOf(brick)
             bricks.splice(index, 1)
             if (pos === "bottom" || pos === "top") {
-                playBall.velY = -playBall.velY;
+                ball.velY = -ball.velY;
                 beep.play();
             }
             else {
-                playBall.velX = -playBall.velX;
+                ball.velX = -ball.velX;
                 beep.play();
             }
         }
@@ -249,14 +251,25 @@ function collideWithBricks(playBall, bricks) {
 }
 
 
-let playBall = new Ball(0, 0, 'red', 15);
-let paddle = new Paddle(0, -430, 200, 30);
-const bricks = [];
 
-for (i = 0; i < 38; i++) {
-    let x = -width / 2 + i * 50;
-    bricks.push(new Brick(x, 300, 50, 50, "magenta"));
+let ball = new Ball(0, 0, 'red', 15);
+let paddle = new Paddle(0, -430, 200, 30);
+
+//for loop for brick drawing
+
+const bricks = [];
+const brickColumns = 4;
+const brickWidth = width / brickColumns;
+const brickHeight = 30;
+const brickRows = 4;
+
+
+for (i = 0; i < brickColumns; i++) {
+    let x = (-width / 2) + (brickWidth / 2 + i * brickWidth);
+    bricks.push(new Brick(x, (height / 2) - brickHeight / 2, width / brickColumns, brickHeight, "magenta"));
 }
+
+//Paddle movement input
 
 window.onkeydown = function (evt) {
     evt = evt || window.event;
@@ -277,19 +290,19 @@ window.onkeyup = function (evt) {
     }
 }
 
-playBall.velX = 8;
-playBall.velY = 8;
+ball.velX = 8;
+ball.velY = 8;
 
 //Game Loop
 
 function loop() {
     ctx.clearRect(-width / 2, -height / 2, canvas.width, canvas.height);
-    playBall.update();
+    ball.update();
     paddle.update();
-    collideWithPaddle(playBall, paddle);
-    collideWithBricks(playBall, bricks);
+    collideWithPaddle(ball, paddle);
+    collideWithBricks(ball, bricks);
     paddle.draw();
-    playBall.draw();
+    ball.draw();
     for (let b in bricks) {
         bricks[b].draw();
     }
