@@ -59,6 +59,11 @@ class Ball {
         this.velY = 0;
         this.color = color;
         this.radius = radius;
+        this.isInPlay = false;
+        this.isOnPaddle = true;
+        this.paddleVelocity = 10;
+        this.isMovingLeftOnPaddle = false;
+        this.isMovingRightOnPaddle = false;
     }
     // define ball draw method
     draw() {
@@ -66,6 +71,21 @@ class Ball {
         ctx.fillStyle = this.color;
         ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
         ctx.fill();
+    }
+    setLeftVelocity() {
+        this.velX = -this.paddleVelocity;
+        this.isMovingLeftOnPaddle = true;
+        this.isMovingRightOnPaddle = false;
+    }
+    setRightVelocity() {
+        this.velX = this.paddleVelocity;
+        this.isMovingRightOnPaddle = true;
+        this.isMovingLeftOnPaddle = false;
+    }
+    stop() {
+        this.velX = 0;
+        this.isMovingLeftOnPaddle = false;
+        this.isMovingRightOnPaddle = false;
     }
     update() {
         this.x += this.velX;
@@ -78,10 +98,11 @@ class Ball {
             this.velY = -this.velY;
         }
         if (this.bottomBoundary <= -canvas.height / 2) {
-            this.x = 0;
-            this.y = 0;
-            this.velY = 5;
-            this.velX = random(-5, 5);
+            this.x = paddle.x;
+            this.y = paddle.topBoundary;
+            this.velY = 0;
+            this.velX = 0;
+            this.isInPlay = false;
         }
         if (this.leftBoundary <= -canvas.width / 2) {
             this.velX = -this.velX;
@@ -106,6 +127,7 @@ class Paddle {
         this.topBoundary = this.y + this.height / 2;
         this.leftBoundary = this.x - this.width / 2;
         this.rightBoundary = this.x + this.width / 2;
+        this.isBlocked = false;
     }
     draw() {
         ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
@@ -134,9 +156,17 @@ class Paddle {
         this.rightBoundary = this.x + this.width / 2;
         if (this.leftBoundary <= -canvas.width / 2) {
             this.x = -width / 2 + this.width / 2;
+            thais.isBlocked = true;
+            if(this.leftBoundary > -canvas.width / 2){
+                this.isBlocked = false;
+            }
         }
         if (this.rightBoundary >= canvas.width / 2) {
             this.x = width / 2 - this.width / 2;
+            this.isBlocked = true;
+            if(this.rightBoundary < canvas.width / 2){
+                this.isBlocked = false;
+            }
         }
     }
 }
@@ -233,13 +263,8 @@ function collideWithRectangles(ball, bricks) {
                 ball.velY = -ball.velY;
                 beep.play();
             }
-            else if (pos === "left" || "right"){
+            else if (pos === "left" || "right") {
                 ball.velX = -ball.velX;
-                beep.play();
-            }
-            else {
-                ball.velX = -ball.velX;
-                ball.velY = -ball.velY;
                 beep.play();
             }
         }
@@ -255,8 +280,8 @@ function collideWithPaddle(ball, paddle) {
     }
 };
 
-let ball = new Ball(0, 0, 'red', 15);
 let paddle = new Paddle(0, -430, 200, 30);
+let ball = new Ball(80, -430, 'black', 15);
 
 //for loop for brick drawing
 
@@ -269,11 +294,10 @@ const brickRows = 4;
 
 for (i = 0; i < brickColumns; i++) {
     let x = (-width / 2) + (brickWidth / 2 + i * brickWidth);
-    bricks.push(new Brick(x, (height / 2) - brickHeight / 2, width / brickColumns, brickHeight, "magenta"));
+    bricks.push(new Brick(x, (height / 2) - brickHeight / 2, width / brickColumns, brickHeight, "orange"));
 }
 
 //Paddle movement input
-
 window.onkeydown = function (evt) {
     evt = evt || window.event;
     if (evt.keyCode == 65) {  //A key
@@ -287,19 +311,41 @@ window.onkeyup = function (evt) {
     evt = evt || window.event;
     if (evt.keyCode == 65 && paddle.isMovingLeft) {  //A key
         paddle.stop();
+        if(!ball.isInPlay){
+            ball.stop();
+        }
     }
     else if (evt.keyCode == 68 && paddle.isMovingRight) {  //D key
         paddle.stop();
+        if(!ball.isInPlay){
+            ball.stop();
+        }
+    } else if (evt.keyCode == 32 && ball.isInPlay === false) {
+        ball.velX = 8;
+        ball.velY = 8;
+        ball.isInPlay = true;
+        ball.isMovingLeftOnPaddle = false;
+        ball.isMovingRightOnPaddle = false;
     }
 }
 
-ball.velX = 8;
-ball.velY = 8;
+function ballOnPaddle(){
+    if(paddle.isBlocked){
+        ball.stop();
+    }
+    else if(paddle.isMovingLeft && !ball.isInPlay){
+        ball.setLeftVelocity();
+    }
+    else if(paddle.isMovingRight && !ball.isInPlay){
+        ball.setRightVelocity();
+    }
+}
 
 //Game Loop
 
 function loop() {
     ctx.clearRect(-width / 2, -height / 2, canvas.width, canvas.height);
+    ballOnPaddle();
     ball.update();
     paddle.update();
     collideWithPaddle(ball, paddle);
@@ -309,7 +355,6 @@ function loop() {
     for (let b in bricks) {
         bricks[b].draw();
     }
-
     window.requestAnimationFrame(loop);
 }
 
