@@ -2,18 +2,11 @@ import '../css/style.css';
 import Brick from './brick';
 import Ball from './ball';
 import Paddle from './paddle';
+import Renderer from './renderer';
 //SEnviromental letiables
 //let canvaContainer = document.querySelector('.canvas-container')
 
-let canvas = document.querySelector("canvas");
-let ctx = canvas.getContext("2d");
 
-//set width and height of playing field
-let width = canvas.width = window.innerWidth;
-let height = canvas.height = window.innerHeight;
-let center = width / 2;
-ctx.translate(width / 2, height / 2);
-ctx.scale(1, -1);
 
 let beep = new Audio('sounds/beep.wav');
 let boop = new Audio('sounds/boop.wav');
@@ -25,11 +18,8 @@ window.onload = function () {
     bgMusic.play();
 };
 
-//randomizer with min & max value
-function random(min, max) {
-    var num = Math.floor(Math.random() * (max - min)) + min;
-    return num;
-}
+
+let renderer = new Renderer();
 
 //Collsion detection
 
@@ -123,7 +113,7 @@ function collideWithRectangles(ball, bricks) {
                 ball.velY = -ball.velY;
                 beep.play();
             }
-            else if (pos === "left" || "right"){
+            else if (pos === "left" || "right") {
                 ball.velX = -ball.velX;
                 beep.play();
             }
@@ -152,14 +142,14 @@ let paddle = new Paddle(0, -430, 200, 30);
 
 const bricks = [];
 const brickColumns = 12;
-const brickWidth = width / brickColumns;
+const brickWidth = renderer.width / brickColumns;
 const brickHeight = 30;
 const brickRows = 4;
 
 
 for (let i = 0; i < brickColumns; i++) {
-    let x = (-width / 2) + (brickWidth / 2 + i * brickWidth);
-    bricks.push(new Brick(x, (height / 2) - brickHeight / 2, width / brickColumns, brickHeight, "magenta"));
+    let x = (-renderer.width / 2) + (brickWidth / 2 + i * brickWidth);
+    bricks.push(new Brick(x, (renderer.height / 2) - brickHeight / 2, renderer.width / brickColumns, brickHeight, "magenta"));
 }
 
 //Paddle movement input
@@ -189,15 +179,15 @@ ball.velY = 8;
 //Game Loop
 
 function loop() {
-    ctx.clearRect(-width / 2, -height / 2, canvas.width, canvas.height);
-    ball.update();
-    paddle.update();
+    renderer.clearCanvas();
+    ball.update(renderer);
+    paddle.update(renderer);
     collideWithPaddle(ball, paddle);
     collideWithRectangles(ball, bricks);
-    paddle.draw();
-    ball.draw();
+    renderer.drawPaddle(paddle);
+    renderer.drawBall(ball);
     for (let b in bricks) {
-        bricks[b].draw();
+        renderer.drawBrick(bricks[b]);
     }
 
     window.requestAnimationFrame(loop);

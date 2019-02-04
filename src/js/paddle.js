@@ -13,12 +13,7 @@ export default class Paddle {
         this.leftBoundary = this.x - this.width / 2;
         this.rightBoundary = this.x + this.width / 2;
     }
-    draw() {
-        ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
-        let drawX = this.x - this.width / 2;
-        let drawY = this.y - this.height / 2;
-        ctx.fillRect(drawX, drawY, this.width, this.height);
-    }
+
     setLeftVelocity() {
         this.velX = -this.VELOCITY;
         this.isMovingLeft = true;
@@ -34,15 +29,15 @@ export default class Paddle {
         this.isMovingLeft = false;
         this.isMovingRight = false;
     }
-    update() {
+    update(renderer) {
         this.x += this.velX;
         this.leftBoundary = this.x - this.width / 2;
         this.rightBoundary = this.x + this.width / 2;
-        if (this.leftBoundary <= -canvas.width / 2) {
-            this.x = -width / 2 + this.width / 2;
+        if (this.leftBoundary <= -renderer.width / 2) {
+            this.x = -renderer.width / 2 + this.width / 2;
         }
-        if (this.rightBoundary >= canvas.width / 2) {
-            this.x = width / 2 - this.width / 2;
+        if (this.rightBoundary >= renderer.width / 2) {
+            this.x = renderer.width / 2 - this.width / 2;
         }
     }
 }
