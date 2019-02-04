@@ -12,11 +12,11 @@ ctx.scale(1, -1);
 
 beep = new Audio('sounds/beep.wav');
 boop = new Audio('sounds/boop.wav');
-bgMusic = new Audio('sounds/bg-music/dubstep.mp3');
-bgMusic.loop = true;
+//bgMusic = new Audio('sounds/bg-music/dubstep.mp3');
+//bgMusic.loop = true;
 
 
-window.onload = function(){
+window.onload = function () {
     bgMusic.play();
 };
 
@@ -45,7 +45,7 @@ class Brick {
         ctx.lineWidth = 10;
         let drawX = this.x - this.width / 2;
         let drawY = this.y - this.height / 2;
-        ctx.strokeRect(drawX, drawY, width, height);
+        //ctx.strokeRect(drawX, drawY, width, height);
         ctx.fillRect(drawX, drawY, this.width, this.height);
     }
 }
@@ -141,16 +141,7 @@ class Paddle {
     }
 }
 
-//check if ball collides with paddle. paddle, has top, left and right boundries which have to be considered for collision
-
-function collideWithPaddle(ball, paddle) {
-    if (ball.bottomBoundary <= paddle.topBoundary && ball.leftBoundary >= paddle.leftBoundary && ball.rightBoundary <= paddle.rightBoundary) {
-        ball.velX = ball.velX;
-        ball.velY = -ball.velY;
-        ball.y = paddle.topBoundary + ball.radius;
-        boop.play();
-    }
-};
+//Collsion detection
 
 function ballPositionRelativeToBrick(ball, brick) {
     if (ball.x > brick.leftBoundary && ball.x < brick.rightBoundary && ball.y > brick.topBoundary) return "top";
@@ -163,12 +154,12 @@ function ballPositionRelativeToBrick(ball, brick) {
     else if (ball.x < brick.leftBoundary && ball.y < brick.topBoundary && ball.y > brick.bottomBoundary) return "left";
 }
 
-function distanceToCorner(ball, brick){
-    return Math.sqrt(Math.pow(ball.x - brick.x, 2) + Math.pow(ball.y - brick.y, 2))
+function distanceToCorner(ball, brick) {
+    return Math.sqrt(Math.pow(ball.x - brick.x, 2) + Math.pow(ball.y - brick.y, 2))
 };
 
-    
-function collideWithBrick(ball, brick, pos) {
+
+function collideWithRectangle(ball, brick, pos) {
     const topRightCorner = { x: brick.x + brick.width / 2, y: brick.y + brick.height / 2 };
     const topLeftCorner = { x: brick.x - brick.width / 2, y: brick.y + brick.height / 2 };
     const bottomRightCorner = { x: brick.x + brick.width / 2, y: brick.y - brick.height / 2 };
@@ -182,14 +173,14 @@ function collideWithBrick(ball, brick, pos) {
         }
         case "top-right": {
             const dist = distanceToCorner(ball, topRightCorner)
-            if (dist <ball.radius) {
+            if (dist < ball.radius) {
                 return brick;
             }
             break;
         }
         case "top-left": {
             const dist = distanceToCorner(ball, topLeftCorner)
-            if (dist <ball.radius) {
+            if (dist < ball.radius) {
                 return brick;
             }
             break;
@@ -208,14 +199,14 @@ function collideWithBrick(ball, brick, pos) {
         }
         case "bottom-right": {
             const dist = distanceToCorner(ball, bottomRightCorner)
-            if (dist <ball.radius) {
+            if (dist < ball.radius) {
                 return brick;
             }
             break;
         }
         case "bottom-left": {
             const dist = distanceToCorner(ball, bottomLeftCorner)
-            if (dist <ball.radius) {
+            if (dist < ball.radius) {
                 return brick;
             }
             break;
@@ -231,10 +222,10 @@ function collideWithBrick(ball, brick, pos) {
 }
 
 
-function collideWithBricks(ball, bricks) {
+function collideWithRectangles(ball, bricks) {
     for (b in bricks) {
         let pos = ballPositionRelativeToBrick(ball, bricks[b]);
-        let brick = collideWithBrick(ball, bricks[b], pos);
+        let brick = collideWithRectangle(ball, bricks[b], pos);
         if (brick) {
             let index = bricks.indexOf(brick)
             bricks.splice(index, 1)
@@ -242,15 +233,27 @@ function collideWithBricks(ball, bricks) {
                 ball.velY = -ball.velY;
                 beep.play();
             }
+            else if (pos === "left" || "right"){
+                ball.velX = -ball.velX;
+                beep.play();
+            }
             else {
                 ball.velX = -ball.velX;
+                ball.velY = -ball.velY;
                 beep.play();
             }
         }
     }
 }
 
-
+function collideWithPaddle(ball, paddle) {
+    if (ball.bottomBoundary <= paddle.topBoundary && ball.leftBoundary >= paddle.leftBoundary && ball.rightBoundary <= paddle.rightBoundary) {
+        ball.velX = ball.velX;
+        ball.velY = -ball.velY;
+        ball.y = paddle.topBoundary + ball.radius;
+        boop.play();
+    }
+};
 
 let ball = new Ball(0, 0, 'red', 15);
 let paddle = new Paddle(0, -430, 200, 30);
@@ -258,7 +261,7 @@ let paddle = new Paddle(0, -430, 200, 30);
 //for loop for brick drawing
 
 const bricks = [];
-const brickColumns = 4;
+const brickColumns = 12;
 const brickWidth = width / brickColumns;
 const brickHeight = 30;
 const brickRows = 4;
@@ -300,7 +303,7 @@ function loop() {
     ball.update();
     paddle.update();
     collideWithPaddle(ball, paddle);
-    collideWithBricks(ball, bricks);
+    collideWithRectangles(ball, bricks);
     paddle.draw();
     ball.draw();
     for (let b in bricks) {
