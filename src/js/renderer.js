@@ -1,11 +1,10 @@
 export default class Renderer {
-    constructor() {
-        let canvas = document.querySelector("canvas");
+    constructor(canvas) {
         this.ctx = canvas.getContext("2d");
 
+        this.width = canvas.width;
+        this.height = canvas.height;
         //set width and height of playing field
-        this.width = canvas.width = window.innerWidth;
-        this.height = canvas.height = window.innerHeight;
         this.ctx.translate(this.width / 2, this.height / 2);
         this.ctx.scale(1, -1);
     }
@@ -21,7 +20,7 @@ export default class Renderer {
         let drawX = brick.x - brick.width / 2;
         let drawY = brick.y - brick.height / 2;
         //this.ctx.strokeRect(drawX, drawY, width, height);
-        this.ctx.fillRect(drawX, drawY, this.width, this.height);
+        this.ctx.fillRect(drawX, drawY, brick.width, brick.height);
     };
 
     drawBall(ball) {
