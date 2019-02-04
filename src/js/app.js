@@ -1,5 +1,7 @@
+import '../css/style.css';
 //SEnviromental letiables
-//let canvaContainer = document.querySelector('.canvas-container');
+//let canvaContainer = document.querySelector('.canvas-container')
+
 let canvas = document.querySelector("canvas");
 let ctx = canvas.getContext("2d");
 
@@ -10,9 +12,9 @@ let center = width / 2;
 ctx.translate(width / 2, height / 2);
 ctx.scale(1, -1);
 
-beep = new Audio('sounds/beep.wav');
-boop = new Audio('sounds/boop.wav');
-//bgMusic = new Audio('sounds/bg-music/dubstep.mp3');
+let beep = new Audio('sounds/beep.wav');
+let boop = new Audio('sounds/boop.wav');
+let bgMusic = new Audio('sounds/bg-music/dubstep.mp3');
 //bgMusic.loop = true;
 
 
@@ -223,7 +225,7 @@ function collideWithRectangle(ball, brick, pos) {
 
 
 function collideWithRectangles(ball, bricks) {
-    for (b in bricks) {
+    for (let b in bricks) {
         let pos = ballPositionRelativeToBrick(ball, bricks[b]);
         let brick = collideWithRectangle(ball, bricks[b], pos);
         if (brick) {
@@ -267,7 +269,7 @@ const brickHeight = 30;
 const brickRows = 4;
 
 
-for (i = 0; i < brickColumns; i++) {
+for (let i = 0; i < brickColumns; i++) {
     let x = (-width / 2) + (brickWidth / 2 + i * brickWidth);
     bricks.push(new Brick(x, (height / 2) - brickHeight / 2, width / brickColumns, brickHeight, "magenta"));
 }
