@@ -1,7 +1,9 @@
 .canvas-container{
-    position: fixed;
-    top: 25;
-    left: 25;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
 }
 
 canvas{

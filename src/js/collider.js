@@ -1,5 +1,8 @@
 export default class Collider {
-    constructor(){};
+    constructor(canvas){
+        this.width = canvas.width;
+        this.height = canvas.height;
+    };
 
     ballPositionRelativeToBrick(ball, brick) {
         if (ball.x > brick.leftBoundary && ball.x < brick.rightBoundary && ball.y > brick.topBoundary) return "top";
@@ -84,6 +87,7 @@ export default class Collider {
             let pos = this.ballPositionRelativeToBrick(ball, bricks[b]);
             let brick = this.collideWithRectangle(ball, bricks[b], pos);
             if (brick) {
+                //TODO Put in own function
                 //delet brick when collision detected
                 let index = bricks.indexOf(brick);
                 bricks.splice(index, 1)
@@ -108,4 +112,13 @@ export default class Collider {
             ball.y = paddle.topBoundary + ball.radius;
         }
     };
+
+    collideWithWall(){
+        if (this.leftBoundary <= -this.width / 2) {
+            this.velX = -this.velX;
+        }
+        if (this.rightBoundary >= this.width / 2) {
+            this.velX = -this.velX;
+        }
+    }
 }

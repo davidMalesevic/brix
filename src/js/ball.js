@@ -27,11 +27,6 @@ export default class Ball {
             this.velX = random(-5, 5);
         }
         //TODO: PUT THIS SHIT IN collider.js (wallcollider)
-        if (this.leftBoundary <= -renderer.width / 2) {
-            this.velX = -this.velX;
-        }
-        if (this.rightBoundary >= renderer.width / 2) {
-            this.velX = -this.velX;
-        }
+        
     }
 }

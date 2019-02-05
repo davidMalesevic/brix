@@ -9,8 +9,11 @@ import Collider from './collider';
 
 let canvas = document.querySelector("canvas");
 
-const width = canvas.width = window.innerWidth;
-const height = canvas.height = window.innerHeight;
+const width = canvas.width = 1080;
+const height = canvas.height = 720;
+
+let renderer = new Renderer(canvas);
+let collider = new Collider(canvas);
 
 let beep = new Audio('sounds/beep.wav');
 let boop = new Audio('sounds/boop.wav');
@@ -23,11 +26,10 @@ window.onload = function () {
 };
 
 
-let renderer = new Renderer(canvas);
-let collider = new Collider();
 
-let ball = new Ball(0, 0, 'red', 15);
-let paddle = new Paddle(0, -430, 200, 30);
+
+let ball = new Ball(0, 0, 'orange', 15);
+let paddle = new Paddle(0, 0, 200, 30);
 
 //for loop for brick drawing
 
@@ -43,8 +45,8 @@ for (let i = 0; i < brickColumns; i++) {
     bricks.push(new Brick(x, (height / 2) - brickHeight / 2, width / brickColumns, brickHeight, "magenta"));
 }
 
-//Paddle movement input
-
+//TODO: Seperate into own file
+//Paddle movement input 
 window.onkeydown = function (evt) {
     evt = evt || window.event;
     if (evt.keyCode == 65) {  //A key
@@ -71,6 +73,7 @@ ball.velY = 8;
 
 function loop() {
     renderer.clearCanvas();
+    renderer.drawBackground();
     ball.update(renderer);
     paddle.update(renderer);
     collider.collideWithPaddle(ball, paddle);
